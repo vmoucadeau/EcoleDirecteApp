@@ -99,43 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          BaseWidget(
-            WidgetIcon: FontAwesomeIcons.book,
-            WidgetTitle: "Devoirs pour demain",
-            WidgetContent: Container(
-                // height: 200,
-                margin: EdgeInsets.only(top: 20),
-                padding: EdgeInsets.only(bottom: 10),
-                child: Flexible(
-                                  child: ListView(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.all(2),
-                    children: <Widget>[
-                      Container(
-                        height: 50,
-                        color: Colors.amber[600],
-                        child: const Center(child: Text('Je sais')),
-                      ),
-                      Container(
-                        height: 50,
-                        color: Colors.amber[500],
-                        child: const Center(child: Text('ces trucs')),
-                      ),
-                      Container(
-                        height: 50,
-                        color: Colors.amber[100],
-                        child: const Center(child: Text('sont')),
-                      ),
-                      Container(
-                        height: 50,
-                        color: Colors.amber[100],
-                        child: const Center(child: Text('hyper moches')),
-                      )
-                    ],
-                  ),
-                )),
-          ),
+          WorkWidget(
+            eleve: Eleve.fromSession(widget.eleve_session),
+          )
         ],
       ),
     );
@@ -176,12 +142,57 @@ class BaseWidget extends StatelessWidget {
                 )
               ],
             ),
-            
             WidgetContent
-            
           ],
         ),
       ),
+    );
+  }
+}
+
+class WorkWidget extends StatelessWidget {
+  @override
+  final Eleve eleve;
+
+  WorkWidget({Key key, @required this.eleve}) : super(key: key);
+
+  Widget build(BuildContext context) {
+    return BaseWidget(
+      WidgetIcon: FontAwesomeIcons.book,
+      WidgetTitle: "Devoirs pour demain",
+      WidgetContent: Container(
+          // height: 200,
+          margin: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.only(bottom: 10),
+          child: Flexible(
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(2),
+              children: <Widget>[
+                Container(
+                  height: 50,
+                  color: Colors.amber[600],
+                  child: const Center(child: Text('Je sais')),
+                ),
+                Container(
+                  height: 50,
+                  color: Colors.amber[500],
+                  child: const Center(child: Text('ces trucs')),
+                ),
+                Container(
+                  height: 50,
+                  color: Colors.amber[100],
+                  child: const Center(child: Text('sont')),
+                ),
+                Container(
+                  height: 50,
+                  color: Colors.amber[100],
+                  child: const Center(child: Text('hyper moches')),
+                )
+              ],
+            ),
+          )),
     );
   }
 }
