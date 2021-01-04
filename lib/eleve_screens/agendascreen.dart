@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'common_widgets.dart';
+
 class AgendaScreen extends StatefulWidget {
   final Session eleve_session;
   AgendaScreen({Key key, @required this.eleve_session}) : super(key: key);
@@ -107,19 +109,189 @@ class _AgendaScreenState extends State<AgendaScreen> {
               ),
             ),
           ),
-          FutureBuilder(
-            future: eleve.FetchCahierDeTexte(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                Map<String, dynamic> result = snapshot.data;
-
-                return Text("coucou");
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
+          Container(
+            margin: EdgeInsets.only(top: 20, right: 5, left: 5, bottom: 20),
+            height: height1 - 140,
+            child: FutureBuilder(
+              future: eleve.FetchCahierDeTexte(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<WorkArray> result = snapshot.data;
+                  List<Widget> PageContent = [];
+                  result.forEach((item) => {
+                        PageContent.add(WorkWidget(
+                          workarray: item,
+                        )),
+                        PageContent.add(SizedBox(
+                          height: 10,
+                        ))
+                      });
+                  return CustomScrollView(
+                    slivers: [
+                      SliverList(
+                        delegate: SliverChildListDelegate(PageContent),
+                      )
+                    ],
+                  );
+                } else {
+                  return AlertDialog(
+                    content: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Chargement...",
+                            style: GoogleFonts.lato(fontSize: 20),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          CircularProgressIndicator()
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class WorkWidget extends StatefulWidget {
+  @override
+  final WorkArray workarray;
+
+  WorkWidget({Key key, @required this.workarray}) : super(key: key);
+  _WorkWidgetState createState() => _WorkWidgetState();
+}
+
+class _WorkWidgetState extends State<WorkWidget> {
+  @override
+  Widget build(BuildContext context) {
+    var parsedDate = DateTime.parse(widget.workarray.date);
+    List<WorkContainer> wlist = [];
+    widget.workarray.works.forEach((item) => {
+          wlist.add(WorkContainer(
+            work: item,
+          ))
+        });
+    return BaseWidget(
+      WidgetIcon: FontAwesomeIcons.book,
+      WidgetTitle: days[parsedDate.weekday] +
+          " " +
+          parsedDate.day.toString() +
+          " " +
+          months[parsedDate.month],
+      WidgetContent: Container(
+          margin: EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    direction: Axis.horizontal,
+                    children: wlist,
+                  ),
+                ],
+              )
+            ],
+          )),
+    );
+  }
+}
+
+class WorkContainer extends StatefulWidget {
+  @override
+  final WorkObj work;
+  WorkContainer({Key key, @required this.work}) : super(key: key);
+  _WorkContainerState createState() => _WorkContainerState();
+}
+
+class _WorkContainerState extends State<WorkContainer> {
+  @override
+  Widget build(BuildContext context) {
+    var parsedDate = DateTime.parse(widget.work.donnele);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.withOpacity(0.5)),
+        color: Colors.white,
+      ),
+      // height: 50,
+      child: Container(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      widget.work.matiere,
+                      style: GoogleFonts.montserrat(fontSize: 18),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        widget.work.is_eva
+                            ? Container(
+                                alignment: Alignment.centerRight,
+                                decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(10)),
+                                padding: EdgeInsets.all(5),
+                                child: Text(
+                                  "EVA",
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 14, color: Colors.white),
+                                  textAlign: TextAlign.right,
+                                ))
+                            : Container(),
+                        Container(
+                          margin: EdgeInsets.only(left: 10),
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.all(6),
+                          child: FaIcon(
+                            widget.work.is_done
+                                ? FontAwesomeIcons.checkCircle
+                                : FontAwesomeIcons.timesCircle,
+                            color:
+                                widget.work.is_done ? Colors.green : Colors.red,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(children: [
+              Container(
+                  width: (MediaQuery.of(context).size.width * 0.97) * 0.85,
+                  child: RichText(
+                    // overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                        text: "Donné le " +
+                            parsedDate.day.toString() +
+                            " " +
+                            months[parsedDate.month],
+                        style: GoogleFonts.montserrat(
+                            fontSize: 14, color: Colors.black)),
+                  )),
+            ])
+          ],
+        ),
       ),
     );
   }

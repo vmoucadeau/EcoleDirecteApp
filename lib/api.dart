@@ -96,7 +96,7 @@ class Eleve {
         picturl: photourl);
   }
 
-  Future<WorkofDay> GetWorkofDay(String date) async {
+  Future<WorkArray> GetWorkofDay(String date) async {
     final response = await http.post(
         'https://api.ecoledirecte.com/v3/Eleves/' +
             this.id.toString() +
@@ -110,7 +110,7 @@ class Eleve {
       // then parse the JSON.
       Map<String, dynamic> json = jsonDecode(response.body);
       // print(json["data"]);
-      return WorkofDay.fromJson(json["data"]);
+      return WorkArray.fromJson(json["data"]);
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -118,7 +118,7 @@ class Eleve {
     }
   }
 
-  Future<Map<String, dynamic>> FetchCahierDeTexte() async {
+  Future<List<WorkArray>> FetchCahierDeTexte() async {
     final response = await http.post(
         'https://api.ecoledirecte.com/v3/Eleves/' +
             this.id.toString() +
@@ -128,9 +128,17 @@ class Eleve {
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
+      Map<String, WorkArray> returnobj = {};
       Map<String, dynamic> json = jsonDecode(response.body);
-      print(json);
-      return json;
+      Map<String, dynamic> data = json["data"];
+      List<WorkArray> worksarraylist = [];
+      List<WorkObj> worksobjlist = [];
+      data.forEach((k, v) => {
+            v.forEach((item) => {worksobjlist.add(WorkObj.fromJson(item))}),
+            worksarraylist.add(WorkArray(k, worksobjlist)),
+            worksobjlist = []
+          });
+      return worksarraylist;
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -157,26 +165,38 @@ class WorkObj {
     if (matierejson["aFaire"] == null) {
       return WorkObj(0, "null", "null", false, null, null, null, null);
     }
-    final Map<String, dynamic> todoobj = matierejson["aFaire"];
-    final String contenutext = utf8.decode(base64.decode(todoobj["contenu"]));
-    return WorkObj(
-        matierejson["id"],
-        matierejson["matiere"],
-        matierejson["nomProf"],
-        matierejson["interrogation"],
-        todoobj["contenu"],
-        contenutext,
-        todoobj["donneLe"],
-        todoobj["effectue"]);
+    if (matierejson["aFaire"] == true) {
+      return WorkObj(
+          matierejson["idDevoir"],
+          matierejson["matiere"],
+          null,
+          matierejson["interrogation"],
+          null,
+          null,
+          matierejson["donneLe"],
+          matierejson["effectue"]);
+    } else {
+      final Map<String, dynamic> todoobj = matierejson["aFaire"];
+      final String contenutext = utf8.decode(base64.decode(todoobj["contenu"]));
+      return WorkObj(
+          matierejson["id"],
+          matierejson["matiere"],
+          matierejson["nomProf"],
+          matierejson["interrogation"],
+          todoobj["contenu"],
+          contenutext,
+          todoobj["donneLe"],
+          todoobj["effectue"]);
+    }
   }
 }
 
-class WorkofDay {
+class WorkArray {
   final String date;
   final List<WorkObj> works;
-  const WorkofDay(this.date, this.works);
+  const WorkArray(this.date, this.works);
 
-  factory WorkofDay.fromJson(Map<String, dynamic> data) {
+  factory WorkArray.fromJson(Map<String, dynamic> data) {
     final List<WorkObj> worklist = [];
     List<dynamic> matieresarray = data["matieres"];
     WorkObj wobj;
@@ -184,6 +204,6 @@ class WorkofDay {
           wobj = WorkObj.fromJson(item),
           if (wobj.matiere != "null") {worklist.add(WorkObj.fromJson(item))}
         });
-    return WorkofDay(data["date"], worklist);
+    return WorkArray(data["date"], worklist);
   }
 }

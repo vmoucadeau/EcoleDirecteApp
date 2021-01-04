@@ -58,9 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
       SizedBox(
         height: 15,
       ),
-      WorkWidget(
-        eleve: Eleve.fromSession(widget.eleve_session),
-      ),
     ];
 
     return AnimatedContainer(
@@ -176,7 +173,7 @@ class _WorkWidgetState extends State<WorkWidget> {
                 future: widget.eleve.GetWorkofDay("2021-01-06"),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    WorkofDay elevework = snapshot.data;
+                    WorkArray elevework = snapshot.data;
                     // TODO: Return a container (not a listview) !
                     /*
                       return ListView.builder(
@@ -229,21 +226,7 @@ class WorkContainer extends StatefulWidget {
 class _WorkContainerState extends State<WorkContainer> {
   Widget build(BuildContext context) {
     var parsedDate = DateTime.parse(widget.work.donnele);
-    List<String> months = [
-      "",
-      "janvier",
-      "février",
-      "mars",
-      "avril",
-      "mai",
-      "juin",
-      "juillet",
-      "août",
-      "septembre",
-      "octobre",
-      "novembre",
-      "décembre"
-    ];
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
