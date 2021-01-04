@@ -117,6 +117,26 @@ class Eleve {
       throw Exception('EcoleDirecte API Error');
     }
   }
+
+  Future<Map<String, dynamic>> FetchCahierDeTexte() async {
+    final response = await http.post(
+        'https://api.ecoledirecte.com/v3/Eleves/' +
+            this.id.toString() +
+            "/cahierdetexte.awp?verbe=get&",
+        body: "data=" + jsonEncode(UserToken(this.session.token)));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      Map<String, dynamic> json = jsonDecode(response.body);
+      print(json);
+      return json;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('EcoleDirecte API Error');
+    }
+  }
 }
 
 class WorkObj {

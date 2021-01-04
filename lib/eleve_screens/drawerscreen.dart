@@ -101,6 +101,16 @@ class _DrawerScreenState extends State<DrawerScreen> {
                                   element2['selected'] = false;
                                   element['selected'] = true;
 
+                                  if (element["title"] == "Cahier de texte") {
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context) => NotesPage(eleve_session: eleve.session,)));
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => AgendaPage(
+                                                  eleve_session: eleve.session,
+                                                )),
+                                        (route) => false);
+                                  }
                                   if (element["title"] == "Notes") {
                                     // Navigator.push(context, MaterialPageRoute(builder: (context) => NotesPage(eleve_session: eleve.session,)));
                                     Navigator.pushAndRemoveUntil(
@@ -212,7 +222,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-
 class NotesPage extends StatelessWidget {
   final Session eleve_session;
 
@@ -226,6 +235,26 @@ class NotesPage extends StatelessWidget {
           eleve_session: eleve_session,
         ),
         NotesScreen(
+          eleve_session: eleve_session,
+        )
+      ],
+    ));
+  }
+}
+
+class AgendaPage extends StatelessWidget {
+  final Session eleve_session;
+
+  AgendaPage({Key key, @required this.eleve_session}) : super(key: key);
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Stack(
+      children: [
+        DrawerScreen(
+          eleve_session: eleve_session,
+        ),
+        AgendaScreen(
           eleve_session: eleve_session,
         )
       ],
