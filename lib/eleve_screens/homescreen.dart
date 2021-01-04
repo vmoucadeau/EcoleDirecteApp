@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:html/parser.dart';
+
+import 'package:intl/intl.dart';
+
 class HomeScreen extends StatefulWidget {
   final Session eleve_session;
   HomeScreen({Key key, @required this.eleve_session}) : super(key: key);
@@ -19,6 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isDrawerOpen = false;
 
   Widget build(BuildContext context) {
+    Color hexToColor(String code) {
+      return new Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+    }
+
     double height = MediaQuery.of(context).size.height;
     var padding = MediaQuery.of(context).padding;
     double height1 = height - padding.top - padding.bottom;
@@ -41,6 +49,18 @@ class _HomeScreenState extends State<HomeScreen> {
             });
     }
 
+    List<Widget> PageContent = [
+      WorkWidget(
+        eleve: Eleve.fromSession(widget.eleve_session),
+      ),
+      SizedBox(
+        height: 15,
+      ),
+      WorkWidget(
+        eleve: Eleve.fromSession(widget.eleve_session),
+      ),
+    ];
+
     return AnimatedContainer(
       transform: Matrix4.translationValues(xOffset, yOffset, 0)
         ..scale(scalefactor),
@@ -62,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
-          SizedBox(height: 0),
           // TopBar(isDrawerOpen: isDrawerOpen,)
 
           AnimatedOpacity(
@@ -73,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(20)),
               padding: EdgeInsets.only(
-                  left: 15, right: 15, top: padding.top + 30, bottom: 30),
-              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                  left: 15, right: 15, top: padding.top + 20, bottom: 15),
+              height: 130,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -89,9 +108,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text("Mon EcoleDirecte",
                           style: GoogleFonts.montserrat(
-                              fontSize: 25, fontWeight: FontWeight.w400)),
+                              fontSize: 25,
+                              fontWeight: FontWeight.w400,
+                              color: hexToColor("#0F8DCF"))),
                       Text("Accueil",
-                          style: GoogleFonts.montserrat(fontSize: 18))
+                          style: GoogleFonts.montserrat(
+                              fontSize: 20, color: hexToColor("#F2A03D")))
                     ],
                   ),
                   CircleAvatar(backgroundColor: Colors.blue)
@@ -99,16 +121,42 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          WorkWidget(
-            eleve: Eleve.fromSession(widget.eleve_session),
-          )
+          Container(
+            margin: EdgeInsets.only(top: 20, right: 5, left: 5),
+            height: height1 - 120,
+            child: CustomScrollView(
+              slivers: [
+                SliverList(
+                  delegate: SliverChildListDelegate(PageContent),
+                )
+              ],
+            ),
+          ),
+          /*
+          SingleChildScrollView(
+            child: Wrap(
+              direction: Axis.horizontal,
+              children: [
+                WorkWidget(
+                  eleve: Eleve.fromSession(widget.eleve_session),
+                ),
+                WorkWidget(
+                  eleve: Eleve.fromSession(widget.eleve_session),
+                ),
+                WorkWidget(
+                  eleve: Eleve.fromSession(widget.eleve_session),
+                )
+              ],
+            ),
+          ),
+          */
         ],
       ),
     );
   }
 }
 
-class BaseWidget extends StatelessWidget {
+class BaseWidget extends StatefulWidget {
   @override
   final IconData WidgetIcon;
   final String WidgetTitle;
@@ -120,14 +168,19 @@ class BaseWidget extends StatelessWidget {
       @required this.WidgetTitle,
       @required this.WidgetContent})
       : super(key: key);
+  _BaseWidgetState createState() => _BaseWidgetState();
+}
 
+class _BaseWidgetState extends State<BaseWidget> {
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(seconds: 1),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
-      margin: EdgeInsets.only(top: 20),
+      // margin: EdgeInsets.only(top: 20),
       padding: EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width * 0.97,
       child: Container(
@@ -135,14 +188,14 @@ class BaseWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                FaIcon(WidgetIcon),
+                FaIcon(widget.WidgetIcon),
                 Text(
-                  " " + WidgetTitle,
+                  " " + widget.WidgetTitle,
                   style: GoogleFonts.montserrat(fontSize: 24),
                 )
               ],
             ),
-            WidgetContent
+            widget.WidgetContent
           ],
         ),
       ),
@@ -150,49 +203,207 @@ class BaseWidget extends StatelessWidget {
   }
 }
 
-class WorkWidget extends StatelessWidget {
+class WorkWidget extends StatefulWidget {
   @override
   final Eleve eleve;
 
   WorkWidget({Key key, @required this.eleve}) : super(key: key);
+  _WorkWidgetState createState() => _WorkWidgetState();
+}
 
+class _WorkWidgetState extends State<WorkWidget> {
+  @override
+  /*
+  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
+  List<WorkContainer> _items = [];
+  
+  Widget sizeIt(BuildContext context, int index, animation) {
+    WorkContainer item = _items[index];
+    return SlideTransition(
+      position: Tween<Offset>(begin: const Offset(-1, 0), end: Offset(0, 0))
+          .animate(animation),
+      child: item,
+    );
+  }
+  */
   Widget build(BuildContext context) {
     return BaseWidget(
       WidgetIcon: FontAwesomeIcons.book,
       WidgetTitle: "Devoirs pour demain",
       WidgetContent: Container(
-          // height: 200,
-          margin: EdgeInsets.only(top: 20),
-          padding: EdgeInsets.only(bottom: 10),
-          child: Flexible(
-            child: ListView(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(2),
-              children: <Widget>[
-                Container(
-                  height: 50,
-                  color: Colors.amber[600],
-                  child: const Center(child: Text('Je sais')),
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.amber[500],
-                  child: const Center(child: Text('ces trucs')),
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.amber[100],
-                  child: const Center(child: Text('sont')),
-                ),
-                Container(
-                  height: 50,
-                  color: Colors.amber[100],
-                  child: const Center(child: Text('hyper moches')),
-                )
-              ],
-            ),
+          margin: EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              FutureBuilder(
+                future: widget.eleve.GetWorkofDay("2021-01-06"),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    WorkofDay elevework = snapshot.data;
+                    // TODO: Return a container (not a listview) !
+                    /*
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        // physics: NeverScrollableScrollPhysics(),
+                        itemCount: elevework.works.length,
+                        itemBuilder: (context, index) {
+                          WorkObj wobj = elevework.works[index];
+                          return WorkContainer(
+                            work: wobj,
+                          );
+                        },
+                      );
+                      */
+                    List<WorkContainer> wlist = [];
+                    elevework.works.forEach((item) => {
+                          wlist.add(WorkContainer(
+                            work: item,
+                          ))
+                        });
+                    return Column(
+                      children: [
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          direction: Axis.horizontal,
+                          children: wlist,
+                        ),
+                      ],
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              ),
+            ],
           )),
     );
   }
+}
+
+class WorkContainer extends StatefulWidget {
+  @override
+  final WorkObj work;
+
+  WorkContainer({Key key, @required this.work}) : super(key: key);
+  _WorkContainerState createState() => _WorkContainerState();
+}
+
+class _WorkContainerState extends State<WorkContainer> {
+  Widget build(BuildContext context) {
+    var parsedDate = DateTime.parse(widget.work.donnele);
+    List<String> months = [
+      "",
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre"
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.withOpacity(0.5)),
+        color: Colors.white,
+      ),
+      // height: 50,
+      child: Container(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      widget.work.matiere,
+                      style: GoogleFonts.montserrat(fontSize: 18),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        widget.work.is_eva
+                            ? Container(
+                                alignment: Alignment.centerRight,
+                                decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(10)),
+                                padding: EdgeInsets.all(5),
+                                child: Text(
+                                  "EVA",
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 14, color: Colors.white),
+                                  textAlign: TextAlign.right,
+                                ))
+                            : Container(),
+                        Container(
+                          margin: EdgeInsets.only(left: 10),
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.all(6),
+                          child: FaIcon(
+                            widget.work.is_done
+                                ? FontAwesomeIcons.checkCircle
+                                : FontAwesomeIcons.timesCircle,
+                            color:
+                                widget.work.is_done ? Colors.green : Colors.red,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Container(
+                    margin: EdgeInsets.only(top: 0, bottom: 10),
+                    width: (MediaQuery.of(context).size.width * 0.97) * 0.85,
+                    child: RichText(
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                          text: parseHtmlString(widget.work.contenu),
+                          style: GoogleFonts.montserrat(
+                              fontSize: 16, color: Colors.black)),
+                    )),
+              ],
+            ),
+            Row(children: [
+              Container(
+                  width: (MediaQuery.of(context).size.width * 0.97) * 0.85,
+                  child: RichText(
+                    // overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                        text: "Donné le " +
+                            parsedDate.day.toString() +
+                            " " +
+                            months[parsedDate.month] +
+                            widget.work.prof,
+                        style: GoogleFonts.montserrat(
+                            fontSize: 14, color: Colors.black)),
+                  )),
+            ])
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String parseHtmlString(String htmlString) {
+  final document = parse(htmlString);
+  final String parsedString = parse(document.body.text).documentElement.text;
+
+  return parsedString;
 }
