@@ -20,13 +20,13 @@ List<String> months = [
 
 List<String> days = [
   "",
-  "lundi",
-  "mardi",
-  "mercredi",
-  "jeudi",
-  "vendredi",
-  "samedi",
-  "dimanche"
+  "Lundi",
+  "Mardi",
+  "Mercredi",
+  "Jeudi",
+  "Vendredi",
+  "Samedi",
+  "Dimanche"
 ];
 
 class BaseWidget extends StatefulWidget {
@@ -34,12 +34,14 @@ class BaseWidget extends StatefulWidget {
   final IconData WidgetIcon;
   final String WidgetTitle;
   final Container WidgetContent;
+  final bool ShowIcon;
 
   BaseWidget(
       {Key key,
-      @required this.WidgetIcon,
+      this.WidgetIcon,
       @required this.WidgetTitle,
-      @required this.WidgetContent})
+      @required this.WidgetContent,
+      this.ShowIcon = true})
       : super(key: key);
   _BaseWidgetState createState() => _BaseWidgetState();
 }
@@ -61,7 +63,7 @@ class _BaseWidgetState extends State<BaseWidget> {
           children: [
             Row(
               children: [
-                FaIcon(widget.WidgetIcon),
+                widget.ShowIcon ? FaIcon(widget.WidgetIcon) : SizedBox(),
                 Text(
                   " " + widget.WidgetTitle,
                   style: GoogleFonts.montserrat(fontSize: 24),

@@ -202,6 +202,7 @@ class _WorkWidgetState extends State<WorkWidget> {
               )
             ],
           )),
+      ShowIcon: false,
     );
   }
 }
